@@ -11,3 +11,9 @@ $ pip install requirement.txt
 $ cp .env.example .env
 ```
 Set your environment variables in the Like `OPENAI API KEY `value.
+
+### (Optional) Setup you command line interface for better readability
+
+```bash
+export PS1="\[\033[01;32m\]\u@\h:\w\n\[\033[00m\]\$ "
+```
