@@ -1,11 +1,15 @@
 
 import os
 
+
+
 from controllers.BaseController import BaseController
 from fastapi import UploadFile
 from models import  ResponseSignal
 from .projectConroller import ProjectController
 import re
+import random
+import string   
 
 class DataController(BaseController):
     def __init__(self):
@@ -20,8 +24,13 @@ class DataController(BaseController):
         
         return True,ResponseSignal.FILE_VALIDATION_SUCSESS.value
     
+    def genrate_random_string(self,length:int =12 ):
+            letters_and_digits = string.ascii_letters + string.digits
+            return ''.join(random.choice(letters_and_digits) for _ in range(length))
+    
     def generate_unique_filename(self,orig_file_name:str,project_id:str):
-        random_key=self.generate_random_string()
+        random_key=self.genrate_random_string()
+        
         project_path=ProjectController().get_project_path(project_id=project_id)
         cleaned_file_name=self.get_clean_file_name(orig_file_name=orig_file_name)
         
@@ -31,7 +40,7 @@ class DataController(BaseController):
         )
         
         while os.path.exists(new_file_path):
-            random_key=self.generate_random_string()
+            random_key=self.genrate_random_string()
             new_file_path=os.path.join(
                 project_path,
                 random_key+"_"+cleaned_file_name

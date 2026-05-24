@@ -49,7 +49,7 @@ async def upload_data(project_id: str,file:UploadFile,
             
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
-            "signal":ResponseSignal.FILE_UPLOAD_FAILED.value,
+            "signal":ResponseSignal.File_UPLOAD_FAILED.value,
             
         }
             )                
@@ -57,6 +57,6 @@ async def upload_data(project_id: str,file:UploadFile,
     return JSONResponse(
             
             content={
-            "signal":ResponseSignal.FILE_UPLOADED_SUCCESSFULLY.value
+            "signal":ResponseSignal.File_UPLOAD_SUCCESS.value
         }
             )    
