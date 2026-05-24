@@ -5,6 +5,9 @@ import os
 from controllers import DataController,ProjectController
 import aiofiles
 from models import  ResponseSignal
+import logging
+
+logger = logging.getLogger('uvicorn.error')
 
 data_router = APIRouter(
     prefix="/api/v1/data",
@@ -40,12 +43,14 @@ async def upload_data(project_id: str,file:UploadFile,
             while chunck := await file.read(app_settings.FILE_DEFAULT_CHUNK_SIZE):
                     await f.write(chunck)
     except Exception as e:
+        
+        logger.error(f"Error uploading file: {str(e)}")
         return JSONResponse(
             
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
             "signal":ResponseSignal.FILE_UPLOAD_FAILED.value,
-            "error":str(e)
+            
         }
             )                
             
