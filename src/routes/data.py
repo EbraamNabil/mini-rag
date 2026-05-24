@@ -1,7 +1,10 @@
-from fastapi import APIRouter , FastAPI, Depends,UploadFile
+from fastapi import APIRouter , FastAPI, Depends,UploadFile,status
+from fastapi.responses import JSONResponse 
 from helpers.config import get_settings,Settings
 import os
-from controllers import DataController
+from controllers import DataController,ProjectController
+import aiofiles
+from models import  ResponseSignal
 
 data_router = APIRouter(
     prefix="/api/v1/data",
@@ -19,6 +22,36 @@ async def upload_data(project_id: str,file:UploadFile,
     
     is_vaid ,result_signal = DataController().validate_file(file=file)
     
-    return {
-        "signal":result_signal
-    }
+    if not is_vaid:
+        return JSONResponse(
+            
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+            "signal":result_signal
+        }
+            )
+        
+       
+    project_dir_path=ProjectController().get_project_path(project_id=project_id)
+    file_path=DataController().generate_unique_filename(orig_file_name=file.filename,project_id=project_id)
+     
+    try:    
+        async with aiofiles.open(file_path,'wb') as f : #we choose to write binary to write any type of file (vedio, audio, pdf, txt, etc.)
+            while chunck := await file.read(app_settings.FILE_DEFAULT_CHUNK_SIZE):
+                    await f.write(chunck)
+    except Exception as e:
+        return JSONResponse(
+            
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+            "signal":ResponseSignal.FILE_UPLOAD_FAILED.value,
+            "error":str(e)
+        }
+            )                
+            
+    return JSONResponse(
+            
+            content={
+            "signal":ResponseSignal.FILE_UPLOADED_SUCCESSFULLY.value
+        }
+            )    
