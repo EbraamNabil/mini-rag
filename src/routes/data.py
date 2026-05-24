@@ -17,6 +17,8 @@ async def upload_data(project_id: str,file:UploadFile,
     
   # 1. Validate file type and size  
     
-    is_vaid = DataController().validate_file(file=file)
+    is_vaid ,result_signal = DataController().validate_file(file=file)
     
-    return is_vaid
+    return {
+        "signal":result_signal
+    }
