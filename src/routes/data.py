@@ -43,7 +43,7 @@ async def upload_data(project_id: str,file:UploadFile,
         
        
     project_dir_path=ProjectController().get_project_path(project_id=project_id)
-    file_path=DataController().generate_unique_filename(orig_file_name=file.filename,project_id=project_id)
+    file_path,file_id=DataController().generate_unique_filepath(orig_file_name=file.filename,project_id=project_id)
      
     try:    
         async with aiofiles.open(file_path,'wb') as f : #we choose to write binary to write any type of file (vedio, audio, pdf, txt, etc.)
@@ -64,6 +64,7 @@ async def upload_data(project_id: str,file:UploadFile,
     return JSONResponse(
             
             content={
-            "signal":ResponseSignal.File_UPLOAD_SUCCESS.value
+            "signal":ResponseSignal.File_UPLOAD_SUCCESS.value,
+            "file_id":file_id
         }
             )    

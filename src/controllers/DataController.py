@@ -25,7 +25,7 @@ class DataController(BaseController):
             letters_and_digits = string.ascii_letters + string.digits
             return ''.join(random.choice(letters_and_digits) for _ in range(length))
     
-    def generate_unique_filename(self,orig_file_name:str,project_id:str):
+    def generate_unique_filepath(self,orig_file_name:str,project_id:str):
         random_key=self.genrate_random_string()
         
         project_path=ProjectController().get_project_path(project_id=project_id)
@@ -43,7 +43,7 @@ class DataController(BaseController):
                 random_key+"_"+cleaned_file_name
             )
 
-        return new_file_path
+        return new_file_path,random_key+"_"+cleaned_file_name
 
     def get_clean_file_name(self,orig_file_name:str):
            
