@@ -87,7 +87,7 @@ async def process_data(project_id : str ,process_request:ProcessRequest):
         overlap_size=overlap_size
         )
         
-    print(file_id)
+    
     
     if file_chunks is None or len(file_chunks)==0:
         return JSONResponse(
