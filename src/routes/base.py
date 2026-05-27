@@ -6,6 +6,10 @@ base_router = APIRouter(
     tags=["base"]
 )
 
+
+
+#we will use depends because to make fastapi responsible of functions and call them
+
 @base_router.get("/")
 async def welcome(app_settings : Settings = Depends(get_settings)):
     app_name = app_settings.APP_NAME

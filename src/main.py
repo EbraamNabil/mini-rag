@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from routes import base,data
 from  motor.motor_asyncio import AsyncIOMotorClient
+# we will use motor to connect to mongodb because it is an asynchronous driver for mongodb and it is compatible with fastapi which is an asynchronous web framework.
 from helpers.config import Settings
 
 

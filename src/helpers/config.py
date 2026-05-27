@@ -1,5 +1,9 @@
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+ENV_PATH = BASE_DIR / ".env"
 
 class Settings(BaseSettings):
     APP_NAME: str
@@ -12,7 +16,7 @@ class Settings(BaseSettings):
     MONGO_DB_NAME: str
     
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=str(ENV_PATH),
         env_file_encoding="utf-8"
     )
 
