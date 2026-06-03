@@ -10,6 +10,30 @@ class ChunkModel(BaseDataModel):
         super().__init__(db_client= db_client)
         self.collection=self.db_client[DataBaseEnum.COLLECTION_CHUNK_NAME.value]
         
+    @classmethod
+    #we make this method a class method because we need to call "init_collection" (which is async method) with "__init__" which is not async method and will make error because you can't call an async method from a non-async method so we will make "create_instances" a class method and call "init_collection" from it to avoid this problem and we will call "create_instances" from the data.py when the application starts to initialize the collection and create the indexes.
+    async def create_instances(cls,db_client:object):
+        instance=cls(db_client=db_client)
+        await instance.init_collection()
+        return instance 
+    
+    
+       
+    async def init_collection(self):
+         all_collections=await self.db_client.list_collection_names()   
+         if DataBaseEnum.COLLECTION_CHUNK_NAME.value not in all_collections:
+              self.collection=self.db_client[DataBaseEnum.COLLECTION_CHUNK_NAME.value]
+              indexes=DataChunk.get_indexes()
+              for index in indexes:
+                  await self.collection.create_index(index["key"]
+                                                     ,name=index["name"],
+                                                     unique=index["unique"])    
+        
+        
+        
+        
+        
+        
     async def create_chunk(self,chunk:DataChunk):     
         result= await self.collection.insert_one(chunk.dict(by_alias=True,exclude_defaults=True))
         

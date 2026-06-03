@@ -11,3 +11,16 @@ class DataChunk(BaseModel):
     
     class Config:
         arbitrary_types_allowed = True
+        
+    @classmethod
+    #this is a decerator which is used to define a method that belongs to the class rather than an instance of the class. It allows you to call the method on the class itself, without needing to create an instance of the class first.
+    def get_indexes(cls):  
+        return [
+            {
+                "key":[
+                    ("chunk_project_id",1 )],
+                "name":"chunk_project_id_index_1",
+                 "unique":False 
+                 #because may more than one chunk can have the same project id so we set unique to false
+                 } 
+        ]

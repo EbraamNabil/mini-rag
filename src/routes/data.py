@@ -9,12 +9,15 @@ import logging
 from .schemas.data import ProcessRequest
 from models.ProjectModel import ProjectModel
 from models.ChunkModel import ChunkModel
+from models.AssetModel import AssetModel
 
 # we will import the Request class from fastapi to be able to access the request object in our route handlers"app"and we will use the request object to access the application state and get the database client that we initialized in the startup event of our application in main.py so we can use it to interact with the database in our route handlers data.py
 from fastapi import Request
 from models.db_schemas import DataChunk
-from models.db_schemas import Project 
+from models.db_schemas import Project ,Asset
 from  bson import ObjectId
+
+from models.enums.AssetTypeEnum import AssetTypeEnum
 
 
 
@@ -42,7 +45,11 @@ async def upload_data(request: Request,project_id: str,file:UploadFile,
     
     
     
-    project_model=ProjectModel(db_client=request.app.db_client)
+    
+    
+    project_model= await ProjectModel.create_instances(db_client=request.app.db_client)
+    
+    
     project= await project_model.get_project_or_create_one(
         project_id=project_id
         )
@@ -79,13 +86,33 @@ async def upload_data(request: Request,project_id: str,file:UploadFile,
             "signal":ResponseSignal.File_UPLOAD_FAILED.value,
             
         }
-            )                
+            ) 
+        
+        
+        
+    # store the assets into the database
+    
+    asset_model=await AssetModel.create_instances(db_client=request.app.db_client)
+    
+    asset_resource=Asset(
+        asset_project_id=project.id,
+        asset_type=AssetTypeEnum.FILE.value,
+        asset_name=file_id,
+        asset_size=os.path.getsize(file_path),
+        
+            
+        
+    )
+    
+    asset_record=await asset_model.create_asset(asset=asset_resource)
+        
+     
             
     return JSONResponse(
             
             content={
             "signal":ResponseSignal.File_UPLOAD_SUCCESS.value,
-            "file_id":file_id,
+            "file_id":str(asset_record.id),
         }
             )    
     
@@ -99,7 +126,7 @@ async def process_data(request: Request, project_id: str, process_request: Proce
     do_reset=process_request.do_reset
     
     
-    project_model=ProjectModel(db_client=request.app.db_client)
+    project_model=await ProjectModel.create_instances(db_client=request.app.db_client)
     project= await project_model.get_project_or_create_one(project_id=project_id)
     
 
@@ -125,8 +152,7 @@ async def process_data(request: Request, project_id: str, process_request: Proce
         }
             )
     
-    
-    
+
     file_chuncks_records=[
         DataChunk(
             chunk_text=chunk.page_content,
@@ -139,7 +165,7 @@ async def process_data(request: Request, project_id: str, process_request: Proce
     ]    
     
     
-    chunck_model=ChunkModel(db_client=request.app.db_client)
+    chunck_model=await ChunkModel.create_instances(db_client=request.app.db_client)
 
     
     if do_reset==1 :
