@@ -12,7 +12,7 @@ class AssetModel(BaseDataModel):
     @classmethod
     #we make this method a class method because we need to call "init_collection" ( which is async method) with "__init__" which is not async method and will make error because you can't call an async method from a non-async method so we will make "create_instances" a class method and call "init_collection" from it to avoid this problem and we will call "create_instances" from the data.py when the application starts to initialize the collection and create the indexes.
     async def create_instances(cls,db_client:object):
-        instance=csl(db_client=db_client)
+        instance=cls(db_client=db_client)
         await instance.init_collection() 
         return instance
     
@@ -39,23 +39,36 @@ class AssetModel(BaseDataModel):
             return asset
         
         
-    async def get_all_project_assets(self,asset_project_id:str):
+    async def get_all_project_assets(self,asset_project_id:str,asset_type:str):
         
-        return await self.collection.find(
+        recrds= await self.collection.find(
             {
                 
-                "asset_project_id": ObjectId(asset_project_id) if isinstance(asset_project_id, str) else asset_project_id
+                "asset_project_id": ObjectId(asset_project_id) if isinstance(asset_project_id, str) else asset_project_id,
               # because the asset_project_id is of type ObjectId in the database but it can be passed as a string from the caller so we need to convert it to ObjectId before querying the database 
               # and we also need to check if the asset_project_id is already an ObjectId or not because if it is already an ObjectId we don't need to convert it again and if it is a string we need to convert it to ObjectId before querying the database
               #so we used "isinstance"which is a built-in function in Python that checks if an object is an instance of a specified class or a subclass thereof. In this case, we are checking if the asset_project_id is an instance of the str class, which means it is a string. If it is a string, we convert it to an ObjectId using the ObjectId constructor. If it is not a string (i.e., it is already an ObjectId), we use it as is in the query.
-            }.to_list(length=None)
+             "asset_type":asset_type
+            
+            }
                
-        ) 
+        ).to_list(length=None)
+        
+        return [
+            Asset(**record) 
+            #as you see we are using the dict() method to convert the asset object to a dictionary because the find method returns a cursor which is an iterable of dictionaries and we need to convert each dictionary to an Asset object before returning it to the caller because the caller expects a list of Asset objects not a list of dictionaries so we need to convert each dictionary to an Asset object before returning it to the caller.
+            for record in recrds
+            ] 
         
         
+    async def get_asset_record(self,asset_project_id:str,asset_name:str):    
+        record= await self.collection.find_one({
+            "asset_project_id": ObjectId(asset_project_id) if isinstance(asset_project_id, str) else asset_project_id,
+            "asset_name": asset_name
+        })
+        
     
-    
-    
+        return Asset(**record) if record else None
 
 
             

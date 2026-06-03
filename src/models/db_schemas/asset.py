@@ -24,7 +24,8 @@ class Asset(BaseModel):
                 "key":[
                     ("asset_project_id",1 )],
                 "name":"asset_project_id_index_1",
-                 "unique":True 
+                 "unique":False 
+                 #Now we make index on asset_project_id because we want to make sure that the asset 
                  #because may more than one asset can have the same project id so we set unique to false
                  } ,
             {
