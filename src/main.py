@@ -3,6 +3,10 @@ from routes import base,data
 from  motor.motor_asyncio import AsyncIOMotorClient
 # we will use motor to connect to mongodb because it is an asynchronous driver for mongodb and it is compatible with fastapi which is an asynchronous web framework.
 from helpers.config import Settings
+from src.stores.llm.providers import CoHereProvider
+from src.stores.llm.providers.OpenAIProvider import OpenAIProvider
+
+from.stores.llm.LLMProvierFactory import LLMProvierFactory
 
 
 app = FastAPI()
@@ -24,6 +28,18 @@ async def startup_event():
     settings=Settings()
     app.mongo_conn=AsyncIOMotorClient(settings.MONGO_URI)
     app.db_client=app.mongo_conn[settings.MONGO_DB_NAME]
+    
+    llm_provider_factory=LLMProvierFactory(settings)
+    
+    #Generation model
+    app.generation_client=LLMProvierFactory.creat(provider=settings.GENERATION_BACKEND)
+    app.generation_client=OpenAIProvider.set_generate_model(model_id=settings.GENERATION_MODEL_ID)
+    
+    
+    #Embedding model
+    app.embedding_client=LLMProvierFactory.creat(provider=settings.EMBEDDING_BACKEND)
+    app.embedding_client=CoHereProvider.set_embedding_model(model_id=settings.EMBEDDING_MODEL_ID,embedding_size=settings.EMBEDDING_MODEL_SIZE)
+    
     
 @app.on_event("shutdown")
 async def shutdown_event():

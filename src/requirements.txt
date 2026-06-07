@@ -7,3 +7,5 @@ aiofiles == 24.1.0
 langchain== 0.2.17
 PyMuPDF == 1.24.9
 motor == cd3.6.1
+openai == 1.80.0
+cohere == 4.57
