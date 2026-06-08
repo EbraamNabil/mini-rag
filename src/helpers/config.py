@@ -30,6 +30,12 @@ class Settings(BaseSettings):
     GENERATION_DEFAULT_TEMPERATURE:float=None
     
     
+    VECTOR_DB_BACKEND:str
+    VECTOR_DB_PATH:str
+    VECTOR_DB_Distance_Method:str=None
+    
+
+    
     model_config = SettingsConfigDict(
         env_file=str(ENV_PATH),
         env_file_encoding="utf-8"
